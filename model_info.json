@@ -1,0 +1,18 @@
+{
+  "model_name": "ResNet50",
+  "img_size": 224,
+  "preprocess": "resnet50",
+  "classes": [
+    "dermis",
+    "dermquest"
+  ],
+  "test_metrics": {
+    "Accuracy": 0.871,
+    "Precision (macro)": 0.856,
+    "Recall (macro)": 0.856,
+    "F1 (macro)": 0.856,
+    "ROC-AUC": 0.957,
+    "Params (M)": 24.121,
+    "Train time (min)": 2.4948
+  }
+}
