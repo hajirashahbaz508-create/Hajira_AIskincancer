@@ -29,7 +29,7 @@ def load_assets():
     if not os.path.exists(MODEL_PATH):
         st.info("Downloading model weights from Google Drive...")
         url = f"https://drive.google.com/uc?id={FILE_ID}"
-        gdown.download(url, MODEL_PATH, quiet=False)
+        gdown.download(url, MODEL_PATH, quiet=False, fuzzy=True)
 
     model = tf.keras.models.load_model(MODEL_PATH, compile=False)
     
@@ -65,7 +65,7 @@ st.sidebar.markdown(f"**Classes ({len(classes)}):** {', '.join(classes)}")
 
 st.title("🔬 Skin Cancer Detection")
 st.caption(f"Model: {info.get('model_name', 'Deep Learning')} | Input Size: {img_size}x{img_size}")
-st.warning("⚠️ **Disclaimer:** Educational demo only — NOT a medical diagnosis. Consult a dermatologist.")
+st.warning("⚠️️ **Disclaimer:** Educational demo only — NOT a medical diagnosis. Consult a dermatologist.")
 
 uploaded_file = st.file_uploader("Upload a skin lesion image...", type=["jpg", "jpeg", "png"])
 
