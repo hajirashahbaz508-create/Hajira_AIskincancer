@@ -20,7 +20,7 @@ st.set_page_config(
 # Configuration & File Setup
 # ---------------------------------------------------------
 MODEL_PATH = "best_model.keras"
-FILE_ID = "16tlVBG4-pbqmnWCUEaHCxtNCmQ_Y5lnS"  # Replace with your actual Google Drive File ID
+FILE_ID = "PASTE_YOUR_FILE_ID_HERE"  # Replace with your actual Google Drive File ID
 INFO_PATH = "model_info.json"
 
 @st.cache_resource
@@ -28,7 +28,8 @@ def load_assets():
     """Downloads model if missing and loads all required assets."""
     if not os.path.exists(MODEL_PATH):
         st.info("Downloading model weights from Google Drive...")
-        gdown.download(id=FILE_ID, output=MODEL_PATH, quiet=False, fuzzy=True)
+        url = f"https://drive.google.com/uc?id={FILE_ID}"
+        gdown.download(url, MODEL_PATH, quiet=False)
 
     model = tf.keras.models.load_model(MODEL_PATH, compile=False)
     
