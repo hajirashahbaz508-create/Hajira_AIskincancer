@@ -1,5 +1,5 @@
 streamlit
 tensorflow
-numpy<2.2
+numpy
 pillow
 gdown
