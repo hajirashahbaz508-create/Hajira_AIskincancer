@@ -29,7 +29,7 @@ def load_assets():
     if not os.path.exists(MODEL_PATH):
         st.info("Downloading model weights from Google Drive...")
         url = f"https://drive.google.com/uc?id={FILE_ID}"
-        gdown.download(url, MODEL_PATH, quiet=False, fuzzy=True)
+        gdown.download(url, MODEL_PATH, quiet=False)
 
     model = tf.keras.models.load_model(MODEL_PATH, compile=False)
     
