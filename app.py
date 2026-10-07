@@ -1,13 +1,3 @@
-"""
-Skin Lesion Analyzer — Skin Cancer Detection Web App  (v3.0 · Light Galaxy)
-===========================================================================
-• Clean LIGHT glassmorphism theme — white/sky surfaces, teal accents
-• No emojis, no doodles — professional clinical look
-• Galaxy-style animations: twinkling starfield, pastel nebula clouds,
-  shooting star, staggered fade-up reveals, shimmer buttons
-• Fully responsive: fixed glass navbar, CSS-only mobile menu, touch targets
-"""
-
 import os
 import time
 import gdown
@@ -63,11 +53,13 @@ THEME_CSS = """
 @import url('https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;800&family=Inter:wght@300;400;500;600&display=swap');
 
 /* ============ LIGHT DESIGN TOKENS ============ */
-/*  bg      : airy sky gradient #f4f9fc → #e8f3f8
-    ink     : #0f2a33 (deep teal-slate)
-    primary : #0d9488 (teal-600)   accent : #0891b2 (cyan-700)
-    glass   : rgba(255, 255, 255, 0.55–0.72)
-    nebula  : pastel teal / violet / rose                                 */
+/*  bg           : airy sky gradient #f4f9fc -> #e8f3f8
+    ink          : #0f2a33 (deep teal-slate)
+    primary      : #0d9488 (teal-600)
+    accent       : #0891b2 (cyan-700)
+    glass        : rgba(255, 255, 255, 0.55–0.72)
+    borders      : rgba(13, 148, 136, 0.18–0.35)
+    nebula       : pastel teal / violet / rose                            */
 
 html, body, [data-testid="stAppViewContainer"], .stApp {
     font-family: 'Inter', sans-serif;
@@ -110,15 +102,16 @@ p, li, span, label, small { color: #28505c; }
 
 /* shooting star */
 .shooting-star {
-    position: fixed; top: 12vh; right: -10vw; width: 120px; height: 2px; z-index: 0;
-    background: linear-gradient(90deg, rgba(13,148,136,0.9), transparent);
+    position: fixed; top: 12vh; right: -12vw; width: 190px; height: 5px; z-index: 0;
+    background: linear-gradient(90deg, rgba(13,148,136,0.95), rgba(34,211,238,0.55), transparent);
     border-radius: 999px; pointer-events: none;
+    box-shadow: 0 0 14px rgba(13, 148, 136, 0.5);
     animation: shoot 7s linear infinite;
 }
 .shooting-star::after {
-    content: ""; position: absolute; right: 0; top: -2px;
-    width: 6px; height: 6px; border-radius: 50%;
-    background: #0d9488; box-shadow: 0 0 12px 3px rgba(13,148,136,0.6);
+    content: ""; position: absolute; right: -2px; top: -3.5px;
+    width: 12px; height: 12px; border-radius: 50%;
+    background: #0d9488; box-shadow: 0 0 20px 6px rgba(13,148,136,0.7);
 }
 @keyframes shoot {
     0%   { transform: translate(0, 0) rotate(-25deg); opacity: 0; }
@@ -161,7 +154,8 @@ p, li, span, label, small { color: #28505c; }
     display: flex; align-items: center; gap: 0.55rem; white-space: nowrap;
 }
 .topnav .brand .pulse-dot {
-    width: 10px; height: 10px; border-radius: 50%; background: #0d9488;
+    width: 10px; height: 10px; border-radius: 50%;
+    background: #0d9488;
     box-shadow: 0 0 0 0 rgba(13, 148, 136, 0.5);
     animation: pulseRing 2.2s ease-out infinite;
 }
@@ -188,6 +182,7 @@ p, li, span, label, small { color: #28505c; }
     cursor: pointer; transition: all 0.3s ease;
 }
 .topnav .menu-btn:hover { background: rgba(13,148,136,0.12); }
+/* hide Streamlit chrome — our navbar owns navigation */
 [data-testid="stHeader"], [data-testid="stToolbar"],
 [data-testid="collapsedControl"], [data-testid="stSidebar"] { display: none !important; }
 
@@ -278,10 +273,14 @@ p, li, span, label, small { color: #28505c; }
 
 /* ============ BUTTONS (shimmer) ============ */
 .stButton > button {
-    width: 100%; border-radius: 14px; border: 1px solid rgba(13,148,136,0.35);
-    background: linear-gradient(120deg, #14b8a6, #0891b2, #14b8a6);
+    width: 100%; border-radius: 16px;
+    border: 2px solid #0f766e;
+    background: linear-gradient(120deg, #0d9488, #0891b2, #0d9488);
     background-size: 200% auto;
-    color: #ffffff; font-weight: 700; padding: 0.7rem 1rem;
+    color: #ffffff; font-weight: 800; font-size: 1.15rem;
+    letter-spacing: 1.5px; text-transform: uppercase;
+    padding: 1rem 1rem;
+    box-shadow: 0 6px 20px rgba(13, 148, 136, 0.35);
     transition: all 0.3s ease;
 }
 .stButton > button:hover {
@@ -363,24 +362,7 @@ hr.soft { border: none; height: 1px; background: linear-gradient(90deg, transpar
 st.markdown(THEME_CSS, unsafe_allow_html=True)
 
 # ----------------------------------------------------------------------------
-# 3. SETTINGS PANEL (always visible on main page)
-# ----------------------------------------------------------------------------
-
-st.markdown('<div id="settings"></div>', unsafe_allow_html=True)
-st.markdown('<div class="glass fade-up-2"><h4 style="margin:0 0 0.6rem 0;">Decision Threshold</h4>', unsafe_allow_html=True)
-c_set1, c_set2 = st.columns([3, 1])
-with c_set1:
-    threshold = st.slider(
-        "Malignant probability above this value is classified as Malignant",
-        min_value=0.05, max_value=0.95, value=0.50, step=0.01,
-        label_visibility="collapsed",
-    )
-with c_set2:
-    st.metric("Threshold", f"{threshold:.2f}")
-st.markdown("</div>", unsafe_allow_html=True)
-
-# ----------------------------------------------------------------------------
-# 4. HERO HEADER  (anchor: #home)
+# 3. HERO HEADER  (anchor: #home)
 # ----------------------------------------------------------------------------
 
 st.markdown('<div id="home"></div>', unsafe_allow_html=True)
@@ -398,7 +380,7 @@ st.markdown(
 model = load_model()
 
 # ----------------------------------------------------------------------------
-# 5. UPLOAD + PREVIEW  (anchor: #analyzer)
+# 4. UPLOAD + PREVIEW  (anchor: #analyzer)
 # ----------------------------------------------------------------------------
 
 st.markdown('<div id="analyzer"></div>', unsafe_allow_html=True)
@@ -432,6 +414,24 @@ with col_preview:
     st.markdown("</div>", unsafe_allow_html=True)
 
 st.markdown('<hr class="soft">', unsafe_allow_html=True)
+
+# ----------------------------------------------------------------------------
+# 5. SETTINGS PANEL (always visible on main page)
+# ----------------------------------------------------------------------------
+
+st.markdown('<div id="settings"></div>', unsafe_allow_html=True)
+st.markdown('<div class="glass fade-up-2"><h4 style="margin:0 0 0.6rem 0;">Decision Threshold</h4>', unsafe_allow_html=True)
+c_set1, c_set2 = st.columns([3, 1])
+with c_set1:
+    threshold = st.slider(
+        "Malignant probability above this value is classified as Malignant.",
+        min_value=0.05, max_value=0.95, value=0.50, step=0.01,
+        label_visibility="collapsed",
+    )
+with c_set2:
+    st.metric("Threshold", f"{threshold:.2f}")
+st.markdown("</div>", unsafe_allow_html=True)
+
 
 # ----------------------------------------------------------------------------
 # 6. RESULTS  (anchor: #results)
