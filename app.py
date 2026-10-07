@@ -277,7 +277,7 @@ p, li, span, label, small { color: #28505c; }
     border: 2px solid #0f766e;
     background: linear-gradient(120deg, #0d9488, #0891b2, #0d9488);
     background-size: 200% auto;
-    color: #ffffff; font-weight: 800; font-size: 1.15rem;
+    color:off-white; font-weight: 800; font-size: 1.15rem;
     letter-spacing: 1.5px; text-transform: uppercase;
     padding: 1rem 1rem;
     box-shadow: 0 6px 20px rgba(13, 148, 136, 0.35);
