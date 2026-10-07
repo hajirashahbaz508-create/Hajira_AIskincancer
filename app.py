@@ -5,6 +5,7 @@ import numpy as np
 import streamlit as st
 from PIL import Image
 import tensorflow as tf
+import streamlit.components.v1 as components
 
 # ----------------------------------------------------------------------------
 # 1. CORE CONFIGURATION & BACKEND  (unchanged)
@@ -124,15 +125,16 @@ p, li, span, label, small { color: #28505c; }
 }
 
 /* ============ TOP NAVBAR ============ */
+#home, #analyzer, #settings, #results, #about { scroll-margin-top: 90px; }
 .topnav {
     position: fixed; top: 0; left: 0; right: 0; z-index: 9999;
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 0.75rem 2rem;
-    background: rgba(255, 255, 255, 0.68);
+    display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+    padding: 0.7rem clamp(1rem, 3vw, 2rem);
+    background: rgba(255, 255, 255, 0.72);
     backdrop-filter: blur(18px) saturate(1.4); -webkit-backdrop-filter: blur(18px) saturate(1.4);
     border-bottom: 1px solid rgba(13, 148, 136, 0.18);
-    box-shadow: 0 6px 24px rgba(13, 60, 70, 0.10);
-    animation: navDrop 0.7s ease backwards;
+    box-shadow: 0 6px 24px rgba(13, 60, 70, 0.08);
+    animation: navDrop 0.7s cubic-bezier(0.22, 1, 0.36, 1) backwards;
 }
 @keyframes navDrop { from { transform: translateY(-100%); } to { transform: translateY(0); } }
 .topnav .brand {
@@ -145,38 +147,66 @@ p, li, span, label, small { color: #28505c; }
     70%  { box-shadow: 0 0 0 12px rgba(13,148,136,0); }
     100% { box-shadow: 0 0 0 0 rgba(13,148,136,0); }
 }
-.topnav .links { display: flex; gap: 1.2rem; }
-.topnav .links a {
+.topnav .links { display: flex; gap: 0.3rem; }
+.topnav a.nav-link {
     color: #28505c; text-decoration: none; font-weight: 600; font-size: 0.88rem;
-    padding: 0.35rem 0.95rem; border-radius: 999px; border: 1px solid transparent;
-    transition: all 0.3s ease; white-space: nowrap;
+    padding: 0.4rem 0.95rem; border-radius: 999px; transition: all 0.3s ease; white-space: nowrap;
 }
-.topnav .links a:hover {
-    color: #fff; background: linear-gradient(120deg, #0d9488, #0891b2);
-    box-shadow: 0 4px 16px rgba(13, 148, 136, 0.35); transform: translateY(-1px);
+.topnav a.nav-link:hover {
+    color: #fff; background: linear-gradient(120deg, #7c3aed, #0d9488);
+    box-shadow: 0 4px 16px rgba(13, 148, 136, 0.3);
 }
-.topnav .menu-btn {
-    display: none; background: rgba(255,255,255,0.6); border: 1px solid rgba(13,148,136,0.35);
-    color: #0b3b45; border-radius: 10px; font-size: 1.15rem; padding: 0.25rem 0.75rem; cursor: pointer;
+/* mobile menu: <details> needs no JavaScript */
+.mobile-menu { display: none; position: relative; }
+.mobile-menu summary {
+    list-style: none; cursor: pointer; width: 42px; height: 42px; border-radius: 12px;
+    display: flex; align-items: center; justify-content: center; font-size: 1.3rem; color: #0b3b45;
+    background: rgba(255,255,255,0.8); border: 1px solid rgba(13,148,136,0.35);
 }
+.mobile-menu summary::-webkit-details-marker { display: none; }
+.mobile-menu .drop {
+    position: absolute; right: 0; top: calc(100% + 0.7rem); min-width: 210px;
+    display: flex; flex-direction: column; padding: 0.5rem; border-radius: 18px;
+    background: rgba(255,255,255,0.97); border: 1px solid rgba(13,148,136,0.2);
+    box-shadow: 0 18px 44px rgba(13, 60, 70, 0.18); animation: dropIn 0.3s ease both;
+}
+.mobile-menu .drop a { padding: 0.8rem 1rem; border-radius: 12px; font-size: 1rem; }
+@keyframes dropIn { from { opacity: 0; transform: translateY(-10px) scale(0.96); } to { opacity: 1; transform: none; } }
 [data-testid="stHeader"], [data-testid="stToolbar"],
 [data-testid="collapsedControl"], [data-testid="stSidebar"] { display: none !important; }
 
 /* ============ ENTRANCE: slideDownFade ============
-   Float down from above, stay suspended (raised + glowing) for ~3.6s,
-   then settle into the static glass layout.                              */
+   Float down, stay gently suspended (raised + soft glow) for ~3.6s,
+   then settle into the static glass layout. Cards cascade 0.2s apart.   */
 @keyframes slideDownFade {
-    0%   { opacity: 0; transform: translateY(-70px) scale(0.97); box-shadow: 0 0 0 rgba(13,148,136,0); }
-    14%  { opacity: 1; transform: translateY(-14px) scale(1.01);
-           box-shadow: 0 26px 60px rgba(13,148,136,0.28), 0 0 0 2px rgba(13,148,136,0.28); }
-    84%  { opacity: 1; transform: translateY(-14px) scale(1.01);
-           box-shadow: 0 26px 60px rgba(13,148,136,0.28), 0 0 0 2px rgba(13,148,136,0.28); }
+    0%   { opacity: 0; transform: translateY(-56px) scale(0.98); }
+    12%  { opacity: 1; transform: translateY(-10px) scale(1.005);
+           box-shadow: 0 24px 56px rgba(124,58,237,0.20), 0 0 0 2px rgba(13,148,136,0.22); }
+    85%  { opacity: 1; transform: translateY(-10px) scale(1.005);
+           box-shadow: 0 24px 56px rgba(124,58,237,0.20), 0 0 0 2px rgba(13,148,136,0.22); }
     100% { opacity: 1; transform: translateY(0) scale(1); }
 }
 .intro-1 { animation: slideDownFade 3.8s cubic-bezier(0.22, 1, 0.36, 1) 0.0s backwards; }
-.intro-2 { animation: slideDownFade 3.8s cubic-bezier(0.22, 1, 0.36, 1) 0.25s backwards; }
-.intro-3 { animation: slideDownFade 3.8s cubic-bezier(0.22, 1, 0.36, 1) 0.5s backwards; }
-.intro-4 { animation: slideDownFade 3.8s cubic-bezier(0.22, 1, 0.36, 1) 0.75s backwards; }
+.intro-2 { animation: slideDownFade 3.8s cubic-bezier(0.22, 1, 0.36, 1) 0.2s backwards; }
+.intro-3 { animation: slideDownFade 3.8s cubic-bezier(0.22, 1, 0.36, 1) 0.4s backwards; }
+.intro-4 { animation: slideDownFade 3.8s cubic-bezier(0.22, 1, 0.36, 1) 0.6s backwards; }
+
+/* scroll reveal for lower sections (falls back to a simple fade-up) */
+@keyframes revealScroll { from { opacity: 0; transform: translateY(44px) scale(0.97); } to { opacity: 1; transform: none; } }
+.reveal { animation: fadeUp 0.8s ease both; }
+@supports (animation-timeline: view()) {
+    .reveal { animation: revealScroll linear both; animation-timeline: view(); animation-range: entry 0% entry 55%; }
+}
+
+/* hero chips */
+.chips { display: flex; flex-wrap: wrap; gap: 0.55rem; justify-content: center; margin-top: 1.2rem; }
+.chip {
+    padding: 0.35rem 0.95rem; border-radius: 999px; font-size: 0.8rem; font-weight: 600;
+    color: #4c2a9a; background: rgba(255,255,255,0.8); border: 1px solid rgba(124,58,237,0.25);
+    animation: chipFloat 5s ease-in-out infinite;
+}
+.chip:nth-child(2) { animation-delay: -1.6s; } .chip:nth-child(3) { animation-delay: -3.2s; }
+@keyframes chipFloat { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
 
 /* ============ PINTEREST-STYLE GLASS FRAMES ============ */
 .glass,
@@ -308,63 +338,94 @@ p, li, span, label, small { color: #28505c; }
 .checklist { padding-left: 1.1rem; } .checklist li { margin: 0.4rem 0; line-height: 1.55; }
 hr.soft { border: none; height: 1px; background: linear-gradient(90deg, transparent, rgba(13,148,136,0.35), transparent); margin: 1.6rem 0; }
 
-/* ============ RESULT CARDS — shared ============ */
-.result-card { position: relative; border-radius: 22px; padding: 1.8rem; margin-top: 0.6rem; overflow: hidden; }
-.result-card > * { position: relative; z-index: 1; }
-.result-head { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
-.result-title { font-family: 'Sora', sans-serif; font-weight: 800; font-size: clamp(1.2rem, 3.4vw, 1.7rem); margin: 0; }
-.result-sub { margin: 0.2rem 0 0 0; font-size: 0.95rem; }
-.icon-disc {
-    flex: 0 0 auto; width: 58px; height: 58px; border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    font-family: 'Sora', sans-serif; font-weight: 800; font-size: 1.8rem; color: #fff;
-}
-.tile-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.9rem; margin: 1.4rem 0 1.2rem 0; }
-.tile { border-radius: 16px; padding: 0.9rem 1.1rem; background: rgba(255,255,255,0.75); animation: popIn 0.6s cubic-bezier(0.34,1.56,0.64,1) both; }
-.tile:nth-child(2) { animation-delay: 0.12s; } .tile:nth-child(3) { animation-delay: 0.24s; } .tile:nth-child(4) { animation-delay: 0.36s; }
-.tile .t-label { display: block; font-size: 0.78rem; font-weight: 600; color: #3a6470; }
-.tile .t-value { display: block; font-family: 'Sora', sans-serif; font-weight: 800; font-size: 1.6rem; margin-top: 0.15rem; }
-.bar-label { display: flex; justify-content: space-between; font-weight: 700; font-size: 0.9rem; margin: 0.6rem 0 0.25rem 0; color: #0b3b45; }
-.bar-track { width: 100%; height: 14px; border-radius: 999px; background: rgba(15, 42, 51, 0.07); overflow: hidden; }
-.bar-fill { height: 100%; border-radius: 999px; width: var(--w); animation: grow 1.4s cubic-bezier(0.22, 1, 0.36, 1) 0.3s backwards; }
-
-/* ============ MALIGNANT — pulsing alert ============ */
+/* ============ RESULT CARDS ============ */
+@property --p { syntax: '<number>';  inherits: false; initial-value: 0; }
+@property --n { syntax: '<integer>'; inherits: false; initial-value: 0; }
+@keyframes gaugeIn { from { --p: 0; --n: 0; } to { --p: var(--target); --n: var(--tint); } }
+@keyframes ripple  { 0% { transform: scale(0.92); opacity: 0.55; } 100% { transform: scale(1.5); opacity: 0; } }
+@keyframes drawStroke { to { stroke-dashoffset: 0; } }
+@keyframes riseStar { 0% { transform: translateY(24px) scale(0.4); opacity: 0; } 20% { opacity: 1; } 100% { transform: translateY(-230px) scale(1); opacity: 0; } }
+@keyframes sweep { 0% { transform: translateX(-120%) skewX(-18deg); } 100% { transform: translateX(380%) skewX(-18deg); } }
 @keyframes pulseGlow {
-    0%, 100% { box-shadow: 0 0 0 2px rgba(239,68,68,0.55), 0 0 18px 2px rgba(245,158,11,0.35), 0 18px 44px rgba(239,68,68,0.18); border-color: rgba(245,158,11,0.9); }
-    50%      { box-shadow: 0 0 0 4px rgba(239,68,68,0.85), 0 0 42px 10px rgba(245,158,11,0.55), 0 18px 54px rgba(239,68,68,0.32); border-color: rgba(239,68,68,1); }
+    0%, 100% { box-shadow: 0 0 0 2px rgba(239,68,68,0.5), 0 0 16px 2px rgba(245,158,11,0.30), 0 18px 44px rgba(239,68,68,0.16); }
+    50%      { box-shadow: 0 0 0 4px rgba(239,68,68,0.85), 0 0 40px 10px rgba(245,158,11,0.50), 0 18px 54px rgba(239,68,68,0.30); }
 }
-@keyframes alertEnter {
-    0%   { opacity: 0; transform: translateX(-40px) skewX(-4deg); }
-    60%  { opacity: 1; transform: translateX(8px) skewX(1deg); }
-    80%  { transform: translateX(-4px); }
-    100% { opacity: 1; transform: translateX(0); }
+@keyframes alertEnter { 0% { opacity: 0; transform: translateX(-36px); } 60% { opacity: 1; transform: translateX(6px); } 100% { opacity: 1; transform: none; } }
+@keyframes shakeOnce { 0%,100% { transform: translateX(0); } 20% { transform: translateX(-7px); } 40% { transform: translateX(6px); } 60% { transform: translateX(-4px); } 80% { transform: translateX(3px); } }
+@keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+@keyframes badgeGlow { 0%,100% { box-shadow: 0 0 0 0 rgba(16,185,129,0.45), 0 8px 22px rgba(16,185,129,0.28); } 50% { box-shadow: 0 0 0 12px rgba(16,185,129,0), 0 8px 28px rgba(16,185,129,0.42); } }
+
+.rise { animation: fadeUp 0.7s cubic-bezier(0.22, 1, 0.36, 1) calc(var(--i, 0) * 0.12s + 0.1s) both; }
+.result-card { position: relative; border-radius: 24px; padding: clamp(1.1rem, 3vw, 2rem); overflow: hidden; }
+.result-card > * { position: relative; z-index: 1; }
+.result-main { display: grid; grid-template-columns: auto 1fr; gap: clamp(1.2rem, 4vw, 2.6rem); align-items: center; }
+.result-info { min-width: 0; }
+.status-row { display: flex; align-items: center; gap: 0.8rem; flex-wrap: wrap; }
+.status-chip {
+    display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.3rem 0.9rem; border-radius: 999px;
+    font-size: 0.82rem; font-weight: 700; color: #fff;
 }
-@keyframes warnBlink { 0%, 100% { opacity: 1; } 50% { opacity: 0.55; } }
+.status-chip::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: #fff; animation: blink 1.4s ease-in-out infinite; }
+.result-title { font-family: 'Sora', sans-serif; font-weight: 800; font-size: clamp(1.25rem, 3.4vw, 1.8rem); line-height: 1.2; margin: 0.7rem 0 0.3rem 0; }
+.result-sub { margin: 0; font-size: 0.97rem; line-height: 1.55; }
+
+/* animated gauge: ring fills and number counts up */
+.gauge-wrap { position: relative; display: grid; place-items: center; padding: 14px; }
+.gauge {
+    --size: clamp(150px, 22vw, 210px);
+    width: var(--size); aspect-ratio: 1; border-radius: 50%; position: relative; display: grid; place-items: center;
+    background: conic-gradient(var(--g1), var(--g2) calc(var(--p) * 3.6deg), rgba(15,42,51,0.09) 0);
+    animation: gaugeIn 1.9s cubic-bezier(0.22, 1, 0.36, 1) 0.35s both;
+    box-shadow: 0 14px 34px rgba(13, 60, 70, 0.14);
+}
+.gauge::before { content: ""; position: absolute; inset: 15px; border-radius: 50%; background: #fff; box-shadow: inset 0 2px 8px rgba(13,60,70,0.08); }
+.gauge-center { position: relative; z-index: 1; text-align: center; line-height: 1.05; }
+.gauge .num { font-family: 'Sora', sans-serif; font-weight: 800; font-size: clamp(2rem, 6vw, 2.7rem); counter-reset: n var(--n); color: var(--g2); }
+.gauge .num::after { content: counter(n) "%"; }
+.gauge .cap { display: block; margin-top: 0.3rem; font-size: 0.78rem; font-weight: 600; color: #3a6470; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); }
+.ripples::before, .ripples::after {
+    content: ""; position: absolute; inset: 14px; border-radius: 50%; border: 2px solid #ef4444; pointer-events: none;
+    animation: ripple 2.4s ease-out 1.4s infinite;
+}
+.ripples::after { animation-delay: 2.6s; }
+
+.tile-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 0.8rem; margin: 1.2rem 0 1rem 0; }
+.tile { border-radius: 16px; padding: 0.8rem 1rem; background: rgba(255,255,255,0.78); animation: popIn 0.6s cubic-bezier(0.34,1.56,0.64,1) both; }
+.tile:nth-child(1) { animation-delay: 0.5s; } .tile:nth-child(2) { animation-delay: 0.62s; } .tile:nth-child(3) { animation-delay: 0.74s; }
+.tile .t-label { display: block; font-size: 0.76rem; font-weight: 600; color: #3a6470; }
+.tile .t-value { display: block; font-family: 'Sora', sans-serif; font-weight: 800; font-size: clamp(1.15rem, 3vw, 1.5rem); margin-top: 0.1rem; }
+.bar-label { display: flex; justify-content: space-between; font-weight: 700; font-size: 0.88rem; margin: 0.55rem 0 0.25rem 0; color: #0b3b45; }
+.bar-track { width: 100%; height: 12px; border-radius: 999px; background: rgba(15, 42, 51, 0.07); overflow: hidden; }
+.bar-fill { height: 100%; border-radius: 999px; width: var(--w); animation: grow 1.5s cubic-bezier(0.22, 1, 0.36, 1) 0.6s backwards; }
+
+/* ---- malignant ---- */
 .alert-card {
-    background: linear-gradient(145deg, rgba(254,242,242,0.92), rgba(255,247,237,0.92));
+    background: linear-gradient(145deg, rgba(254,242,242,0.94), rgba(255,247,237,0.94));
     border: 2px solid rgba(245,158,11,0.9);
-    animation: pulseGlow 2s ease-in-out infinite, fadeUp 0.6s ease both;
+    animation: shakeOnce 0.6s ease 0.1s both, pulseGlow 2.2s ease-in-out 0.7s infinite;
 }
+.alert-card .status-chip { background: linear-gradient(120deg, #ef4444, #f59e0b); }
 .alert-card .result-title { color: #b91c1c; }
-.alert-card .icon-disc { background: linear-gradient(135deg, #ef4444, #f59e0b); animation: warnBlink 1.2s ease-in-out infinite; box-shadow: 0 0 22px rgba(239,68,68,0.55); }
-.alert-card .tile { border: 1px solid rgba(239,68,68,0.3); }
+.alert-card .result-sub { color: #7f1d1d; }
+.alert-card .tile { border: 1px solid rgba(239,68,68,0.28); }
 .alert-card .tile .t-value { color: #b91c1c; }
-.alert-card .tile.warn { animation: popIn 0.6s cubic-bezier(0.34,1.56,0.64,1) both, warnBlink 1.8s ease-in-out 0.8s infinite; border-color: rgba(239,68,68,0.7); }
+.alert-card .tile.warn { border-color: rgba(239,68,68,0.7); animation: popIn 0.6s cubic-bezier(0.34,1.56,0.64,1) 0.5s both, blink 1.8s ease-in-out 1.3s infinite; }
 .guidance {
-    margin-top: 1.4rem; padding: 1.3rem 1.4rem; border-radius: 18px;
-    background: rgba(255,255,255,0.82); border-left: 6px solid #ef4444;
+    margin-top: 1.5rem; padding: clamp(1rem, 3vw, 1.4rem); border-radius: 18px;
+    background: rgba(255,255,255,0.86); border-left: 6px solid #ef4444;
     box-shadow: 0 10px 30px rgba(239,68,68,0.14);
-    animation: alertEnter 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0.5s backwards;
+    animation: alertEnter 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0.9s backwards;
 }
-.guidance h4 { margin: 0 0 0.8rem 0; color: #b91c1c; font-size: 1.1rem; }
+.guidance h4 { margin: 0 0 0.6rem 0; color: #b91c1c; font-size: 1.1rem; }
 .guidance ol { list-style: none; counter-reset: step; margin: 0; padding: 0; }
 .guidance li {
     counter-increment: step; position: relative; padding: 0.55rem 0 0.55rem 2.7rem; color: #3b2a2a; line-height: 1.5;
     animation: alertEnter 0.7s cubic-bezier(0.22, 1, 0.36, 1) backwards;
 }
-.guidance li:nth-child(1) { animation-delay: 0.8s; } .guidance li:nth-child(2) { animation-delay: 1.0s; }
-.guidance li:nth-child(3) { animation-delay: 1.2s; } .guidance li:nth-child(4) { animation-delay: 1.4s; }
-.guidance li:nth-child(5) { animation-delay: 1.6s; }
+.guidance li:nth-child(1) { animation-delay: 1.2s; } .guidance li:nth-child(2) { animation-delay: 1.4s; }
+.guidance li:nth-child(3) { animation-delay: 1.6s; } .guidance li:nth-child(4) { animation-delay: 1.8s; }
+.guidance li:nth-child(5) { animation-delay: 2.0s; }
 .guidance li::before {
     content: counter(step); position: absolute; left: 0; top: 0.5rem; width: 1.9rem; height: 1.9rem; border-radius: 50%;
     display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.9rem; color: #fff;
@@ -372,77 +433,80 @@ hr.soft { border: none; height: 1px; background: linear-gradient(90deg, transpar
 }
 .guidance li b { color: #7f1d1d; }
 
-/* ============ BENIGN — emerald reassurance + star shimmer ============ */
-@keyframes starTwinkle { 0%, 100% { opacity: 0.2; transform: scale(0.8); } 50% { opacity: 1; transform: scale(1.2); } }
-@keyframes sweep { 0% { transform: translateX(-120%) skewX(-18deg); } 100% { transform: translateX(260%) skewX(-18deg); } }
-@keyframes badgeGlow { 0%, 100% { box-shadow: 0 0 0 0 rgba(16,185,129,0.45), 0 8px 22px rgba(16,185,129,0.3); } 50% { box-shadow: 0 0 0 12px rgba(16,185,129,0), 0 8px 28px rgba(16,185,129,0.45); } }
+/* ---- benign ---- */
 .safe-card {
-    background: linear-gradient(145deg, rgba(236,253,245,0.95) 0%, rgba(209,250,229,0.9) 55%, rgba(204,251,241,0.9) 100%);
-    border: 1.5px solid rgba(16,185,129,0.5);
-    box-shadow: 0 18px 50px rgba(16,185,129,0.18);
+    background: linear-gradient(145deg, rgba(236,253,245,0.96) 0%, rgba(209,250,229,0.92) 55%, rgba(204,251,241,0.92) 100%);
+    border: 1.5px solid rgba(16,185,129,0.5); box-shadow: 0 18px 50px rgba(16,185,129,0.18);
     animation: fadeUp 0.7s ease both;
 }
-.safe-card::before {   /* star particles */
-    content: ""; position: absolute; top: 0; left: 0; width: 4px; height: 4px; border-radius: 50%;
-    background: transparent; z-index: 0; pointer-events: none;
-    box-shadow:
-        60px 14px #34d399, 180px 70px #6ee7b7, 320px 26px #a7f3d0, 450px 90px #34d399,
-        570px 18px #6ee7b7, 690px 64px #a7f3d0, 810px 30px #34d399, 120px 120px #a7f3d0,
-        400px 150px #6ee7b7, 640px 130px #34d399, 760px 110px #6ee7b7, 250px 175px #34d399;
-    animation: starTwinkle 3s ease-in-out infinite;
+.safe-card::after {
+    content: ""; position: absolute; top: 0; bottom: 0; left: 0; width: 22%; z-index: 0; pointer-events: none;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.75), transparent);
+    animation: sweep 5.5s ease-in-out 1.2s infinite;
 }
-.safe-card::after {    /* light sweep */
-    content: ""; position: absolute; top: 0; bottom: 0; left: 0; width: 35%; z-index: 0; pointer-events: none;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.7), transparent);
-    animation: sweep 5s ease-in-out 1s infinite;
+.sparks { position: absolute; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+.sp {
+    position: absolute; bottom: 0; left: var(--x); width: var(--s); height: var(--s); border-radius: 50%;
+    background: radial-gradient(circle, #fff 0%, #34d399 55%, transparent 70%);
+    animation: riseStar 4.5s ease-in var(--d) infinite both;
 }
+.safe-card .status-chip { background: linear-gradient(120deg, #10b981, #34d399); }
 .safe-card .result-title { color: #047857; }
-.safe-card .icon-disc { background: linear-gradient(135deg, #10b981, #059669); animation: badgeGlow 2.4s ease-out infinite; }
+.safe-card .result-sub { color: #065f46; }
 .safe-card .tile { border: 1px solid rgba(16,185,129,0.3); }
 .safe-card .tile .t-value { color: #047857; }
+.check { width: 46px; height: 46px; flex: 0 0 auto; }
+.check circle { fill: #10b981; stroke: #059669; stroke-width: 2; animation: popIn 0.6s cubic-bezier(0.34,1.56,0.64,1) 0.2s both; transform-origin: center; }
+.check path { fill: none; stroke: #fff; stroke-width: 4; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 40; stroke-dashoffset: 40; animation: drawStroke 0.6s ease 0.9s forwards; }
 .low-risk-badge {
-    display: inline-flex; align-items: center; gap: 0.55rem; margin-top: 1rem;
-    padding: 0.6rem 1.4rem; border-radius: 999px; font-weight: 800; font-size: 1rem; letter-spacing: 0.4px;
-    color: #fff; background: linear-gradient(120deg, #10b981, #34d399);
-    animation: popIn 0.7s cubic-bezier(0.34,1.56,0.64,1) 0.3s both, badgeGlow 2.4s ease-out 1s infinite;
+    display: inline-flex; align-items: center; gap: 0.5rem; margin-top: 0.9rem;
+    padding: 0.5rem 1.2rem; border-radius: 999px; font-weight: 800; font-size: 0.95rem;
+    color: #fff; background: linear-gradient(120deg, #059669, #10b981);
+    animation: popIn 0.7s cubic-bezier(0.34,1.56,0.64,1) 0.8s both, badgeGlow 2.4s ease-out 1.6s infinite;
 }
-.safe-note { margin-top: 1.1rem; color: #065f46; line-height: 1.6; }
+.safe-note { margin: 1.2rem 0 0 0; color: #065f46; line-height: 1.6; }
 
-/* ============ UNCERTAIN ============ */
+/* ---- uncertain ---- */
 .unsure-card {
-    background: linear-gradient(145deg, rgba(255,251,235,0.95), rgba(254,243,199,0.85));
+    background: linear-gradient(145deg, rgba(255,251,235,0.96), rgba(254,243,199,0.88));
     border: 1.5px solid rgba(217,119,6,0.5); box-shadow: 0 16px 40px rgba(245,158,11,0.18);
     animation: fadeUp 0.6s ease both;
 }
+.unsure-card .status-chip { background: linear-gradient(120deg, #f59e0b, #d97706); }
 .unsure-card .result-title { color: #92400e; }
-.unsure-card .icon-disc { background: linear-gradient(135deg, #f59e0b, #d97706); }
+.unsure-card .result-sub { color: #92400e; }
 .unsure-card .tile { border: 1px solid rgba(217,119,6,0.3); }
 .unsure-card .tile .t-value { color: #92400e; }
 
 /* ============ RESPONSIVE ============ */
+.responsive-img img, [data-testid="stImage"] img { max-height: 440px; object-fit: contain; width: 100%; }
 @media (max-width: 900px) {
     .block-container { padding-top: 5.5rem; }
-    .topnav { padding: 0.6rem 1rem; }
-    .topnav .links {
-        display: none; position: absolute; top: 100%; left: 0; right: 0;
-        flex-direction: column; gap: 0; padding: 0.5rem 1rem 1rem 1rem;
-        background: rgba(255, 255, 255, 0.94); backdrop-filter: blur(20px);
-        border-bottom: 1px solid rgba(13,148,136,0.2); box-shadow: 0 12px 30px rgba(13, 60, 70, 0.12);
-    }
-    #nav-toggle:checked ~ .links { display: flex; }
-    .topnav .links a { padding: 0.8rem 1rem; border-radius: 12px; font-size: 1rem; }
-    .topnav .menu-btn { display: block; }
+    .topnav .links { display: none; }
+    .mobile-menu { display: block; }
     .glass, .st-key-upload_card, .st-key-preview_card, .st-key-settings_card, .st-key-analyze_card { padding: 1.1rem; border-radius: 16px; }
+}
+@media (max-width: 700px) {
+    .result-main { grid-template-columns: 1fr; justify-items: center; text-align: center; }
+    .status-row { justify-content: center; }
+    .tile-row { grid-template-columns: repeat(2, 1fr); }
+    .tile-row .tile:last-child:nth-child(odd) { grid-column: 1 / -1; }
     [data-testid="stFileUploaderDropzone"] { flex-direction: column; text-align: center; }
+    .guidance li { padding-left: 2.5rem; }
 }
 @media (max-width: 480px) {
     .block-container { padding-top: 5rem; padding-left: 0.8rem; padding-right: 0.8rem; }
     .hero { padding: 1.6rem 0.8rem; }
-    .result-card { padding: 1.2rem; }
     .stButton > button { padding: 0.9rem 1rem; font-size: 1rem; }
+    .topnav .brand { font-size: 0.95rem; }
+}
+/* touch screens: no hover lift (it sticks after a tap) */
+@media (hover: none) {
+    .glass:hover, .st-key-upload_card:hover, .st-key-preview_card:hover,
+    .st-key-settings_card:hover, .st-key-analyze_card:hover { transform: none; }
 }
 @media (prefers-reduced-motion: reduce) {
-    *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+    *, *::before, *::after { animation-duration: 0.01ms !important; animation-delay: 0s !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
 }
 </style>
 
@@ -453,15 +517,23 @@ hr.soft { border: none; height: 1px; background: linear-gradient(90deg, transpar
 
 <nav class="topnav">
     <a class="brand" href="#home"><span class="pulse-dot"></span>Skin Lesion Analyzer</a>
-    <input type="checkbox" id="nav-toggle" style="display:none;">
     <div class="links">
-        <a href="#home">Home</a>
-        <a href="#analyzer">Analyzer</a>
-        <a href="#settings">Settings</a>
-        <a href="#results">Results</a>
-        <a href="#about">About</a>
+        <a class="nav-link" href="#home">Home</a>
+        <a class="nav-link" href="#analyzer">Analyzer</a>
+        <a class="nav-link" href="#settings">Settings</a>
+        <a class="nav-link" href="#results">Results</a>
+        <a class="nav-link" href="#about">About</a>
     </div>
-    <label for="nav-toggle" class="menu-btn">&#9776;</label>
+    <details class="mobile-menu">
+        <summary aria-label="Open menu">&#9776;</summary>
+        <div class="drop">
+            <a class="nav-link" href="#home">Home</a>
+            <a class="nav-link" href="#analyzer">Analyzer</a>
+            <a class="nav-link" href="#settings">Settings</a>
+            <a class="nav-link" href="#results">Results</a>
+            <a class="nav-link" href="#about">About</a>
+        </div>
+    </details>
 </nav>
 """
 
@@ -476,15 +548,33 @@ def tiles_html(items):
     out = ""
     for label, value, extra in items:
         out += f'<div class="tile {extra}"><span class="t-label">{label}</span><span class="t-value">{value}</span></div>'
-    return f'<div class="tile-row">{out}</div>'
+    return f'<div class="tile-row rise" style="--i:3">{out}</div>'
 
 
 def bars_html(benign_p, malignant_p, b_color, m_color):
     return f"""
-    <div class="bar-label"><span>Benign</span><span>{benign_p * 100:.1f}%</span></div>
-    <div class="bar-track"><div class="bar-fill" style="--w:{benign_p * 100:.1f}%; background:{b_color};"></div></div>
-    <div class="bar-label"><span>Malignant</span><span>{malignant_p * 100:.1f}%</span></div>
-    <div class="bar-track"><div class="bar-fill" style="--w:{malignant_p * 100:.1f}%; background:{m_color};"></div></div>
+    <div class="rise" style="--i:4">
+        <div class="bar-label"><span>Benign</span><span>{benign_p * 100:.1f}%</span></div>
+        <div class="bar-track"><div class="bar-fill" style="--w:{benign_p * 100:.1f}%; background:{b_color};"></div></div>
+        <div class="bar-label"><span>Malignant</span><span>{malignant_p * 100:.1f}%</span></div>
+        <div class="bar-track"><div class="bar-fill" style="--w:{malignant_p * 100:.1f}%; background:{m_color};"></div></div>
+    </div>
+    """
+
+
+def gauge_html(value, g1, g2, caption, ripples=False):
+    pct = value * 100
+    wrap = "gauge-wrap ripples" if ripples else "gauge-wrap"
+    return f"""
+    <div class="{wrap}">
+        <div class="gauge" style="--target:{pct:.1f}; --tint:{int(round(pct))}; --g1:{g1}; --g2:{g2};">
+            <div class="gauge-center">
+                <span class="sr">{pct:.1f}% {caption}</span>
+                <span class="num" aria-hidden="true"></span>
+                <span class="cap">{caption}</span>
+            </div>
+        </div>
+    </div>
     """
 
 
@@ -497,15 +587,16 @@ def render_malignant(benign_p, malignant_p, confidence, threshold):
     st.markdown(
         f"""
         <div class="result-card alert-card">
-            <div class="result-head">
-                <div class="icon-disc">!</div>
-                <div>
-                    <p class="result-title">Cancer-like features detected</p>
-                    <p class="result-sub" style="color:#7f1d1d;">The model classified this lesion as <b>malignant</b>. This is a screening result, not a diagnosis.</p>
+            <div class="result-main">
+                {gauge_html(malignant_p, "#f59e0b", "#dc2626", "malignant", ripples=True)}
+                <div class="result-info">
+                    <div class="status-row rise" style="--i:0"><span class="status-chip">Needs attention</span></div>
+                    <p class="result-title rise" style="--i:1">Cancer-like features detected</p>
+                    <p class="result-sub rise" style="--i:2">The model classified this lesion as <b>malignant</b>. This is a screening result, not a diagnosis.</p>
+                    {tiles}
+                    {bars_html(benign_p, malignant_p, "linear-gradient(90deg,#94a3b8,#cbd5e1)", "linear-gradient(90deg,#f59e0b,#ef4444)")}
                 </div>
             </div>
-            {tiles}
-            {bars_html(benign_p, malignant_p, "linear-gradient(90deg,#94a3b8,#cbd5e1)", "linear-gradient(90deg,#f59e0b,#ef4444)")}
             <div class="guidance">
                 <h4>What to do next</h4>
                 <ol>
@@ -528,21 +619,33 @@ def render_benign(benign_p, malignant_p, confidence, threshold):
         ("Confidence", f"{confidence * 100:.1f}%", ""),
         ("Threshold", f"{threshold:.2f}", ""),
     ])
+    sparks = "".join(
+        f'<i class="sp" style="--x:{x}%; --d:{d}s; --s:{sz}px"></i>'
+        for x, d, sz in zip(
+            range(6, 100, 10),
+            [0, 0.8, 1.6, 0.4, 2.2, 1.2, 2.8, 0.2, 1.9, 0.6],
+            [6, 9, 7, 10, 6, 8, 7, 9, 6, 8],
+        )
+    )
     st.markdown(
         f"""
         <div class="result-card safe-card">
-            <div class="result-head">
-                <div class="icon-disc">&#10003;</div>
-                <div>
-                    <p class="result-title">No cancer-like features detected</p>
-                    <p class="result-sub" style="color:#065f46;">The model classified this lesion as <b>benign</b>.</p>
+            <div class="sparks">{sparks}</div>
+            <div class="result-main">
+                {gauge_html(benign_p, "#6ee7b7", "#059669", "benign")}
+                <div class="result-info">
+                    <div class="status-row rise" style="--i:0">
+                        <svg class="check" viewBox="0 0 52 52" aria-hidden="true"><circle cx="26" cy="26" r="24"/><path d="M14 27l8 8 16-17"/></svg>
+                        <span class="status-chip">No cancer detected</span>
+                    </div>
+                    <p class="result-title rise" style="--i:1">This lesion looks benign</p>
+                    <p class="result-sub rise" style="--i:2">The model found no features that point to cancer.</p>
+                    <span class="low-risk-badge">LOW RISK &middot; {benign_p * 100:.1f}% benign</span>
+                    {tiles}
+                    {bars_html(benign_p, malignant_p, "linear-gradient(90deg,#34d399,#10b981)", "linear-gradient(90deg,#cbd5e1,#94a3b8)")}
                 </div>
             </div>
-            <span class="low-risk-badge">&#10003;&nbsp; LOW RISK &middot; {benign_p * 100:.1f}% benign</span>
-            {tiles}
-            {bars_html(benign_p, malignant_p, "linear-gradient(90deg,#34d399,#10b981)", "linear-gradient(90deg,#cbd5e1,#94a3b8)")}
-            <p class="safe-note">Keep an eye on the spot. See a doctor if it changes in size, colour or shape, starts to bleed, or looks different from your other moles.
-            Routine skin checks are still a good habit.</p>
+            <p class="safe-note rise" style="--i:5">Keep an eye on the spot. See a doctor if it changes in size, colour or shape, starts to bleed, or looks different from your other moles. Routine skin checks are still a good habit.</p>
         </div>
         """,
         unsafe_allow_html=True,
@@ -558,15 +661,16 @@ def render_uncertain(benign_p, malignant_p, confidence, threshold):
     st.markdown(
         f"""
         <div class="result-card unsure-card">
-            <div class="result-head">
-                <div class="icon-disc">?</div>
-                <div>
-                    <p class="result-title">Result is uncertain</p>
-                    <p class="result-sub" style="color:#92400e;">Neither class passed your threshold. Please have this lesion looked at by a dermatologist.</p>
+            <div class="result-main">
+                {gauge_html(malignant_p, "#fbbf24", "#d97706", "malignant")}
+                <div class="result-info">
+                    <div class="status-row rise" style="--i:0"><span class="status-chip">Inconclusive</span></div>
+                    <p class="result-title rise" style="--i:1">Result is uncertain</p>
+                    <p class="result-sub rise" style="--i:2">Neither class passed your threshold. Please have this lesion looked at by a dermatologist.</p>
+                    {tiles}
+                    {bars_html(benign_p, malignant_p, "linear-gradient(90deg,#34d399,#10b981)", "linear-gradient(90deg,#f59e0b,#ef4444)")}
                 </div>
             </div>
-            {tiles}
-            {bars_html(benign_p, malignant_p, "linear-gradient(90deg,#34d399,#10b981)", "linear-gradient(90deg,#f59e0b,#ef4444)")}
         </div>
         """,
         unsafe_allow_html=True,
@@ -584,6 +688,7 @@ st.markdown(
         <h1 class="grad-text float-anim">Skin Lesion Analyzer</h1>
         <p class="sub">AI-assisted dermoscopic image classification — Benign vs. Malignant</p>
         <span class="disclaimer-pill">For research and educational use only — not a medical diagnosis</span>
+        <div class="chips"><span class="chip">224 x 224 input</span><span class="chip">Processed in memory only</span><span class="chip">Adjustable threshold</span></div>
     </div>
     """,
     unsafe_allow_html=True,
@@ -685,6 +790,14 @@ else:
         unsafe_allow_html=True,
     )
 
+if analyze_clicked and st.session_state.get("probs") is not None:
+    # smoothly bring the fresh result into view (important on phones)
+    components.html(
+        """<script>try{setTimeout(function(){var el=window.parent.document.getElementById('results');
+        if(el){el.scrollIntoView({behavior:'smooth',block:'start'});}},400);}catch(e){}</script>""",
+        height=0,
+    )
+
 # ----------------------------------------------------------------------------
 # 8. ABOUT + GUIDELINES + FOOTER  (anchor: #about)
 # ----------------------------------------------------------------------------
@@ -695,7 +808,7 @@ c_a, c_b = st.columns(2, gap="large")
 with c_a:
     st.markdown(
         """
-        <div class="glass intro-3" style="height:100%;">
+        <div class="glass reveal" style="height:100%;">
             <h3 style="margin-top:0;">Image Guidelines</h3>
             <ul class="checklist">
                 <li>Use a <b>clear, in-focus</b> close-up of the lesion</li>
@@ -713,7 +826,7 @@ with c_a:
 with c_b:
     st.markdown(
         """
-        <div class="glass intro-4" style="height:100%;">
+        <div class="glass reveal" style="height:100%;">
             <h3 style="margin-top:0;">About and Privacy</h3>
             <ul class="checklist">
                 <li>Deep-learning classifier with a 224 x 224 input, built on TensorFlow</li>
@@ -729,7 +842,7 @@ with c_b:
 
 st.markdown(
     """
-    <div class="glass fade-up-3" style="margin-top:1.6rem; text-align:center;">
+    <div class="glass reveal" style="margin-top:1.6rem; text-align:center;">
         <small style="color:#3a6470;">
         <b>Medical Disclaimer:</b> This tool is for educational and research purposes only.
         It is not a substitute for professional medical advice, diagnosis, or treatment.
