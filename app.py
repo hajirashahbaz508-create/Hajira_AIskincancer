@@ -822,4 +822,3 @@ if ss.page == "results":
     page_results()
 else:
     page_detect()
-    
